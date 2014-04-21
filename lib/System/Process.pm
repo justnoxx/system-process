@@ -54,7 +54,7 @@ sub pidinfo {
 
 1;
 
-package SRS::PID;
+package System::Process::Unit;
 use strict;
 use warnings;
 use Carp;
