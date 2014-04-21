@@ -110,6 +110,14 @@ sub new {
 }
 
 
+sub refresh {
+    my $self = shift;
+    my $pid = $self->pid();
+
+    $self = System::Process::pidinfo(pid     =>  $pid);
+    return 1;
+}
+
 sub process_info {
     my $self = shift;
 
