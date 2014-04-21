@@ -48,7 +48,7 @@ sub pidinfo {
         croak "PID must be a digits sequence";
     }
     
-    return SRS::PID->new($pid);
+    return System::Process::Unit->new($pid);
 }
 
 
@@ -144,8 +144,7 @@ sub parse_output {
     for my $key (keys %$res) {
         my $k2 = lc $key;
         $k2 =~ s/[^A-Za-z]//gs;
-        $res->{$k2} = $res->{$key};
-        delete $res->{$key};
+        $res->{$k2} = delete $res->{$key};
     }
     
     $self->internal_info($res);
@@ -202,7 +201,7 @@ sub kill {
         croak 'Signal must be specified';
     }
 
-    return kill $self->pid, $signal;
+    return kill $signal, $self->pid;
 }
 
 1;
