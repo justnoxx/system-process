@@ -1,15 +1,48 @@
-package SRS::Utils::PSUtils;
+package System::Process;
+
+# TODO: add pod
+
 use strict;
 use warnings;
 use Carp;
 
-our @ISA = qw/Exporter/;
-our @EXPORT = qw/pidinfo/;
+our $VERSION = 0.05;
+
+*{main::pidinfo} = \&pidinfo;
 
 sub pidinfo {
-    my $pid = shift;
+    my (%params, $pid);
 
-    croak "Missing param" unless $pid;
+    if (scalar @_ & 1) {
+        %params = (
+            pid  =>  shift
+        );
+    }
+    else {
+        %params = @_;    
+    }
+    
+    if ($params{pid} && $params{file}) {
+        croak 'Choose one';
+    }
+
+    if (!$params{pid} && !$params{file}) {
+        croak 'Missing pid or file param';
+    }
+
+    if ($params{file}) {
+        return undef unless -r $params{file};
+
+        open PID, $params{file};
+        $pid = <PID>;
+        close PID;
+        return undef unless $pid;
+        chomp $pid;
+    }
+    else {
+        $pid = $params{pid};
+    }
+    
 
     if ($pid !~ m/^\d+$/s) {
         croak "PID must be a digits sequence";
@@ -67,7 +100,7 @@ sub new {
     bless $self, $class;
     $self->pid($pid);
     unless ($self->process_info()) {
-        return {};
+        return undef;
     }
 
     return $self;
@@ -145,11 +178,32 @@ sub internal_info {
 }
 
 
+sub cankill {
+    my $self = shift;
+
+    my $pid = $self->pid();
+
+    if (kill 0, $pid) {
+        return 1;
+    }
+    return 0;
+}
+
+
 sub DESTROY {
     my $self = shift;
     undef $self;
 }
 
+sub kill {
+    my ($self, $signal) = @_;
+
+    if (!defined $signal) {
+        croak 'Signal must be specified';
+    }
+
+    return kill $self->pid, $signal;
+}
 
 1;
 __END__;
