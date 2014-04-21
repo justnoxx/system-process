@@ -8,7 +8,9 @@ use Carp;
 
 our $VERSION = 0.05;
 
-*{main::pidinfo} = \&pidinfo;
+sub import {
+    *{main::pidinfo} = \&pidinfo;
+}
 
 sub pidinfo {
     my (%params, $pid);
@@ -48,7 +50,7 @@ sub pidinfo {
         croak "PID must be a digits sequence";
     }
     
-    return SRS::PID->new($pid);
+    return System::Process::Unit->new($pid);
 }
 
 
@@ -76,6 +78,7 @@ my @allowed_subs = qw/
 
 my $hal;
 %$hal = map {(__PACKAGE__ . '::' . $_, 1)} @allowed_subs;
+
 
 sub AUTOLOAD {
     my $program = $AUTOLOAD;
@@ -190,20 +193,22 @@ sub cankill {
 }
 
 
-sub DESTROY {
-    my $self = shift;
-    undef $self;
-}
-
 sub kill {
     my ($self, $signal) = @_;
 
     if (!defined $signal) {
         croak 'Signal must be specified';
     }
-
-    return kill $self->pid, $signal;
+    # printf "Gonna kill %s with signal: %s\n", $self->pid(), $signal;
+    return kill $signal, $self->pid();
 }
+
+
+sub DESTROY {
+    my $self = shift;
+    undef $self;
+}
+
 
 1;
 __END__;
