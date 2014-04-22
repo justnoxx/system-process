@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 14;
 
 use File::Temp qw/ tempfile /;
 use  Data::Dumper;
@@ -12,6 +12,7 @@ use constant CLASS_NAME => 'System::Process::Unit';
 my $pi;
 my $pid = $$;
 my $hup;
+my $croak;
 
 
 $SIG{HUP} = sub { $hup = 1; };
@@ -29,7 +30,38 @@ my ( $fh, $filename ) = tempfile( 'tempfileXXXXXX', TMPDIR => 1, UNLINK => 1 );
 # Empty pidfile must be opened with no croak and with empty result
 #
 $pi = pidinfo file => $filename;
+
 is( $pi, undef, 'empty result for empty file' );
+
+
+#
+# We want croak for empty params
+#
+my $croak = undef;
+
+eval {
+    $pi = pidinfo();
+    1;
+} or do {
+    $croak = 1;
+};
+
+ok $croak, 'no croak for empty params';
+
+
+#
+# We want croak for multiple params
+#
+$croak = undef;
+
+eval {
+    $pi = pidinfo( pid => '123', file => $filename );
+    1;
+} or do {
+    $croak = 1;
+};
+
+ok $croak, 'no croak for multiple params';
 
 
 #
