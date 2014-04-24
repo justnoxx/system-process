@@ -18,7 +18,11 @@ my %WriteMakefileArgs = (
         "POSIX" =>  0,
         "Carp"  =>  0
     },
-    "VERSION" => "0.04"
+    "VERSION" => "0.04",
+    "test" => {
+        "TESTS" => "t/*.t"
+    }
+
 );
 
 

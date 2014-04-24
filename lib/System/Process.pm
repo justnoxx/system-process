@@ -1,16 +1,64 @@
 package System::Process;
 
-# TODO: add pod
+=head1 NAME
+
+System::Process;
+
+=head1 DESCRIPTION
+
+Module for ps output parsing and manipulation
+
+=head1 METHODS
+
+=cut
+
 
 use strict;
 use warnings;
+no warnings qw/once/;
+
 use Carp;
 
-our $VERSION = 0.05;
+our $VERSION = 0.06;
 
 sub import {
     *{main::pidinfo} = \&pidinfo;
 }
+
+
+=over
+
+=item B<pidinfo>
+
+pidinfo(%)
+
+params is hash (pid=>4444) || (file=>'/path/to/pid/file')
+
+returns System::Process::Unit object that supports following methods
+
+readonly
+
+    cpu
+    time
+    stat
+    tty
+    user
+    mem
+    rss
+    vsz
+    command
+    start
+    pid
+
+signals
+
+    cankill - checks possibility of kill process
+    kill - kill process
+    refresh - refresh data for current pid
+
+=back
+
+=cut
 
 sub pidinfo {
     my (%params, $pid);
@@ -118,6 +166,7 @@ sub refresh {
     return 1;
 }
 
+
 sub process_info {
     my $self = shift;
 
@@ -155,8 +204,7 @@ sub parse_output {
     for my $key (keys %$res) {
         my $k2 = lc $key;
         $k2 =~ s/[^A-Za-z]//gs;
-        $res->{$k2} = $res->{$key};
-        delete $res->{$key};
+        $res->{$k2} = delete $res->{$key};
     }
     
     $self->internal_info($res);
@@ -219,4 +267,6 @@ sub DESTROY {
 
 
 1;
+
 __END__;
+
