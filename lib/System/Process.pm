@@ -19,7 +19,7 @@ no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.06;
+our $VERSION = 0.07;
 
 sub import {
     *{main::pidinfo} = \&pidinfo;
@@ -55,6 +55,10 @@ signals
     cankill - checks possibility of kill process
     kill - kill process
     refresh - refresh data for current pid
+
+others
+
+    write_pid - write pid to selected file
 
 =back
 
@@ -173,6 +177,19 @@ sub process_info {
     my $command = 'ps u ' . $self->pid();
     my @res = `$command`;
     return $self->parse_output(@res);
+}
+
+
+sub write_pid {
+    my ($self, $file) = @_;
+
+    return 0 unless $self->pid();
+    open PID, '>', $file or return 0;
+
+    print PID $self->pid() or return 0;
+
+    close PID;
+    return 1;
 }
 
 
