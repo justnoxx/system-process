@@ -19,7 +19,7 @@ no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.07;
+our $VERSION = 0.08;
 
 sub import {
     *{main::pidinfo} = \&pidinfo;
@@ -80,7 +80,7 @@ sub pidinfo {
         croak 'Choose one';
     }
 
-    if (!$params{pid} && !$params{file}) {
+    if (!$params{pid} && !$params{file} && !$params{pattern}) {
         croak 'Missing pid or file param';
     }
 
@@ -92,6 +92,10 @@ sub pidinfo {
         close PID;
         return undef unless $pid;
         chomp $pid;
+    }
+    elsif ($params{pattern}) {
+        return System::Process::Unit->new_bundle($params{pattern});
+
     }
     else {
         $pid = $params{pid};
@@ -112,6 +116,7 @@ package System::Process::Unit;
 use strict;
 use warnings;
 use Carp;
+use Data::Dumper;
 
 our $AUTOLOAD;
 
@@ -162,6 +167,13 @@ sub new {
 }
 
 
+sub new_bundle {
+    my ($class, $pattern) = @_;
+
+    return get_bundle($pattern);
+}
+
+
 sub refresh {
     my $self = shift;
     my $pid = $self->pid();
@@ -176,7 +188,45 @@ sub process_info {
 
     my $command = 'ps u ' . $self->pid();
     my @res = `$command`;
-    return $self->parse_output(@res);
+    my $parse_result = parse_output(@res);
+
+    # return $self->parse_output(@res);
+
+    return $parse_result unless $parse_result;
+
+    $self->internal_info($parse_result);
+    return 1;
+}
+
+
+sub get_bundle {
+    my $pattern = shift;
+    my $command = qq/ps uax/;
+
+    my @res = `$command`;
+    my $header = shift @res;
+    @res = grep {
+        if (m/$pattern/) {
+            1;
+        }
+        else {
+            0;
+        }
+    } map {
+        s/\s*$//;
+        $_;
+    } @res;
+
+    return [] unless scalar @res;
+
+    my $bundle = [];
+
+    for my $r (@res) {
+        my $res = parse_output($header, $r);
+        bless $res, __PACKAGE__;
+        push @$bundle, $res;
+    }
+    return $bundle;
 }
 
 
@@ -193,8 +243,21 @@ sub write_pid {
 }
 
 
+sub parse_n_generate {
+    my ($self, @params) = @_;
+
+    my $res = parse_output(@params);
+    $self->internal_info($res);
+    return 1;
+}
+
+
 sub parse_output {
-    my ($self, @out) = @_;
+    if (ref $_[0] eq __PACKAGE__) {
+        shift;
+    }
+
+    my (@out) = @_;
 
     # если нет второй строки, значит процесса не было
     return 0 unless $out[1];
@@ -224,9 +287,9 @@ sub parse_output {
         $res->{$k2} = delete $res->{$key};
     }
     
-    $self->internal_info($res);
-
-    return 1;
+    return $res;    
+    # $self->internal_info($res);
+    # return 1;
 }
 
 

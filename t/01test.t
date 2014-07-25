@@ -37,7 +37,7 @@ is( $pi, undef, 'empty result for empty file' );
 #
 # We want croak for empty params
 #
-my $croak = undef;
+$croak = undef;
 
 eval {
     $pi = pidinfo();
@@ -110,7 +110,7 @@ my $output = << 'END';
     12345 testing some command line
 END
 
-$pi->parse_output( split /\n/, $output );
+$pi->parse_n_generate( split /\n/, $output );
 
 is $pi->cpu, 12345, 'check first cloumn';
 is $pi->user, 'testing', 'check second cloumn';
