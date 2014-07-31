@@ -6,7 +6,7 @@ System::Process;
 
 =head1 DESCRIPTION
 
-Module for ps output parsing and manipulation
+Module for ps output parsing and manipulation.
 
 =head1 METHODS
 
@@ -19,7 +19,7 @@ no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.08;
+our $VERSION = 0.09;
 
 sub import {
     *{main::pidinfo} = \&pidinfo;
@@ -32,9 +32,10 @@ sub import {
 
 pidinfo(%)
 
-params is hash (pid=>4444) || (file=>'/path/to/pid/file')
+params is hash (pid=>4444) || (file=>'/path/to/pid/file' || pattern => 'my\scool\sname')
 
-returns System::Process::Unit object that supports following methods
+returns System::Process::Unit object that supports following methods if pid or file option specified.
+If pattern option specified - returns arrayref of System::Process objects.
 
 readonly
 
@@ -59,6 +60,7 @@ signals
 others
 
     write_pid - write pid to selected file
+    is_alive - returns true if process alive
 
 =back
 
@@ -328,6 +330,13 @@ sub cankill {
     return 0;
 }
 
+
+sub is_alive {
+    my ($self) = @_;
+    
+    $self->refresh();
+    return $self->cankill();
+}
 
 sub kill {
     my ($self, $signal) = @_;
