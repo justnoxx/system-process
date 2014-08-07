@@ -2,12 +2,12 @@ package System::Process;
 
 =head1 NAME
 
-System::Process;
+System::Process
 
 =head1 DESCRIPTION
 
-Manipulate system process as perl object. This is simple wrapper over ps on
-unix systems. For Windows systems - under construction.
+Manipulate system process as perl object. This is a simple wrapper over ps on
+*nix systems. For Windows systems - under construction.
 
 =head1 SYNOPSIS
 
@@ -20,25 +20,6 @@ unix systems. For Windows systems - under construction.
 
 =head1 METHODS
 
-=cut
-
-
-use strict;
-use warnings;
-no warnings qw/once/;
-
-use Carp;
-
-our $VERSION = 0.10;
-
-sub import {
-    if ($^O =~ m/MSWin32/is) {
-        croak "Not implemented for windows yet.";
-    }
-    *{main::pidinfo} = \&pidinfo;
-}
-
-
 =over
 
 =item B<pidinfo>
@@ -50,34 +31,96 @@ params is hash (pid=>4444) || (file=>'/path/to/pid/file' || pattern => 'my\scool
 returns System::Process::Unit object that supports following methods if pid or file option specified.
 If pattern option specified - returns arrayref of System::Process objects.
 
-readonly
+=back
 
-    cpu
-    time
-    stat
-    tty
-    user
-    mem
-    rss
-    vsz
-    command
-    start
-    pid
+=head1 PROCESS OBJECT METHODS
 
-signals
+If your ps uax header simillar to my:
+    USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
+You will get these methods:
 
-    cankill - checks possibility of kill process
-    kill - kill process
-    refresh - refresh data for current pid
+=over
 
-others
+=item B<cpu>
+Returns %CPU.
 
-    write_pid - write pid to selected file
-    is_alive - returns true if process alive
+=item B<time>
+Returns TIME.
+
+=item B<stat>
+Returns STAT.
+
+=item B<tty>
+Returns TTY.
+
+=item B<user>
+Returns USER
+
+=item B<mem>
+Returns %MEM
+
+=item B<rss>
+Returns %RSS
+
+=item B<vsz>
+Returns VSZ
+
+=item B<command>
+Returns COMMAND
+
+=item B<start>
+Returns START
+
+=item B<pid>
+Returns PID
+
+=back
+
+Anyway, you will get methods named as lowercase header values.
+
+=over 
+
+=item B<cankill>
+Checks possibility of 'kill' process.
+Returns 1 if possible
+
+=item B<kill>
+Kills a process with specified signal
+    $process_object->kill(9);
+
+=item B<refresh>
+Refreshes data for current pid.
+
+=item B<write_pid>
+
+Writes pid to desired file.
+    $process_object->write_pid('/my/pid/path');
+
+=item B<is_alive>
+
+Returns true if process alive.
 
 =back
 
 =cut
+
+
+use strict;
+use warnings;
+no warnings qw/once/;
+
+use Carp;
+
+our $VERSION = 0.12;
+our $ABSTRACT = "Simple OO wrapper over ps.";
+
+sub import {
+    if ($^O =~ m/MSWin32/is) {
+        croak "Not implemented for windows yet.";
+    }
+    *{main::pidinfo} = \&pidinfo;
+}
+
 
 sub pidinfo {
     my (%params, $pid);
@@ -302,9 +345,7 @@ sub parse_output {
         $res->{$k2} = delete $res->{$key};
     }
     
-    return $res;    
-    # $self->internal_info($res);
-    # return 1;
+    return $res;
 }
 
 
@@ -357,7 +398,6 @@ sub kill {
     if (!defined $signal) {
         croak 'Signal must be specified';
     }
-    # printf "Gonna kill %s with signal: %s\n", $self->pid(), $signal;
     return kill $signal, $self->pid();
 }
 
