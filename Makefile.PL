@@ -5,24 +5,27 @@ use 5.008001;
 use ExtUtils::MakeMaker 6.30;
 
 my %WriteMakefileArgs = (
-    "ABSTRACT" => "Daemonize tools",
-    "AUTHOR" => "justnoxx",
-    "BUILD_REQUIRES" => {},
-    "CONFIGURE_REQUIRES" => {
+    ABSTRACT => "Wrapper around ps utility on unix",
+    AUTHOR => "justnoxx",
+    BUILD_REQUIRES => {},
+    CONFIGURE_REQUIRES => {
         "ExtUtils::MakeMaker" => "6.30",
     },
-    "DISTNAME" => "System-Process",
-    "LICENSE" => "perl",
-    "NAME" => "System::Process",
-    "PREREQ_PM" => {
+    DISTNAME => "System-Process",
+    LICENSE => "perl",
+    NAME => "System::Process",
+    PREREQ_PM => {
         "POSIX" =>  0,
         "Carp"  =>  0
     },
-    "VERSION" => "0.04",
-    "test" => {
+    VERSION_FROM => "lib/System/Process.pm",
+    test => {
         "TESTS" => "t/*.t"
-    }
-
+    },
+    dist  => {
+        COMPRESS => 'gzip -9f',
+        SUFFIX => 'gz',
+    },
 );
 
 

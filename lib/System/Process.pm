@@ -6,7 +6,17 @@ System::Process;
 
 =head1 DESCRIPTION
 
-Module for ps output parsing and manipulation.
+Manipulate system process as perl object. This is simple wrapper over ps on
+unix systems. For Windows systems - under construction.
+
+=head1 SYNOPSIS
+
+    use System::Process;
+
+    my $process_object = pidinfo pid => 5321;
+    if ($process_object) {
+        print $process_object->command();
+    }
 
 =head1 METHODS
 
@@ -19,9 +29,12 @@ no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.09;
+our $VERSION = 0.10;
 
 sub import {
+    if ($^O =~ m/MSWin32/is) {
+        croak "Not implemented for windows yet.";
+    }
     *{main::pidinfo} = \&pidinfo;
 }
 

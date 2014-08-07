@@ -6,9 +6,14 @@ use warnings;
 use Test::More tests => 14;
 
 use File::Temp qw/ tempfile /;
-use  Data::Dumper;
+use Data::Dumper;
 
 use constant CLASS_NAME => 'System::Process::Unit';
+
+if ($^O =~ m/MSWin32/is) {
+    BAIL_OUT "Not implemented for windows yet.";
+}
+
 my $pi;
 my $pid = $$;
 my $hup;
