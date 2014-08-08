@@ -125,7 +125,7 @@ no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.12;
+our $VERSION = 0.13;
 our $ABSTRACT = "Simple OO wrapper over ps.";
 
 sub import {
@@ -242,7 +242,7 @@ sub new {
 sub new_bundle {
     my ($class, $pattern) = @_;
 
-    return get_bundle($pattern);
+    return get_bundle($class, $pattern);
 }
 
 
@@ -272,7 +272,7 @@ sub process_info {
 
 
 sub get_bundle {
-    my $pattern = shift;
+    my ($class, $pattern) = @_;
     my $command = qq/ps uax/;
 
     my @res = `$command`;
@@ -295,8 +295,13 @@ sub get_bundle {
 
     for my $r (@res) {
         my $res = parse_output($header, $r);
-        bless $res, __PACKAGE__;
-        push @$bundle, $res;
+        my $object = {
+            pid         =>  $res->{pid},
+            _procinfo   =>  $res,
+        };
+
+        bless $object, $class;
+        push @$bundle, $object;
     }
     return $bundle;
 }
