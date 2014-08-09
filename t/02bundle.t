@@ -30,6 +30,7 @@ if ($pid) {
     }
 
     ok $i eq $processes_count, 'Bundled processes';
+    exit 0;
 }
 else {
     no Test::More;
@@ -39,7 +40,7 @@ else {
             fork && exit;
             $0 = $worker_process_name;
             local $SIG{ALRM} = sub {
-                exit 1;
+                exit 0;
             };
             alarm 10;
             while(1){};
