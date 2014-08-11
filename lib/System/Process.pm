@@ -121,14 +121,23 @@ Returns true if process alive.
 
 use strict;
 use warnings;
+
 no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.13;
+our $VERSION = 0.14;
 our $ABSTRACT = "Simple OO wrapper over ps.";
+our $TEST = 0;
 
 sub import {
+    my ($class, $import) = @_;
+
+    if ($import =~ m/test/s) {
+        $TEST = 1;
+        $System::Process::Unit::TEST = 1;
+    }
+
     if ($^O =~ m/MSWin32/is) {
         croak "Not implemented for windows yet.";
     }
@@ -188,8 +197,8 @@ package System::Process::Unit;
 use strict;
 use warnings;
 use Carp;
-use Data::Dumper;
 
+our $TEST = 0;
 our $AUTOLOAD;
 
 my @allowed_subs = qw/
@@ -273,12 +282,27 @@ sub process_info {
 
 sub get_bundle {
     my ($class, $pattern) = @_;
-    my $command = qq/ps uax/;
 
-    my @res = `$command`;
+    my $command = qq/ps uax/;
+    my @res;
+
+    if ($TEST) {
+        @res = (
+            'PID CPU USER COMMAND',
+            '65532 123 test_user blahblahblah',
+            '65533 123 test_user blahblahblah',
+            '65531 123 root rm -rf',
+            '65534 123 test_user blahblahblah',
+        );
+    }
+    else {
+        @res = `$command`;
+    }
+
     my $header = shift @res;
+
     @res = grep {
-        if (m/$pattern/) {
+        if (m/$pattern/s) {
             1;
         }
         else {
@@ -336,7 +360,6 @@ sub parse_output {
 
     my (@out) = @_;
 
-    # если нет второй строки, значит процесса не было
     return 0 unless $out[1];
 
     my @header = split /\s+/, $out[0];
