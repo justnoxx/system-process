@@ -126,14 +126,14 @@ no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.14;
+our $VERSION = 0.15;
 our $ABSTRACT = "Simple OO wrapper over ps.";
 our $TEST = 0;
 
 sub import {
     my ($class, $import) = @_;
 
-    if ($import =~ m/test/s) {
+    if ($import && $import =~ m/test/s) {
         $TEST = 1;
         $System::Process::Unit::TEST = 1;
     }
