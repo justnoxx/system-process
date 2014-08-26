@@ -126,7 +126,7 @@ no warnings qw/once/;
 
 use Carp;
 
-our $VERSION = 0.14;
+our $VERSION = 0.15;
 our $ABSTRACT = "Simple OO wrapper over ps.";
 our $TEST = 0;
 
@@ -182,11 +182,14 @@ sub pidinfo {
         $pid = $params{pid};
     }
     
-
     if ($pid !~ m/^\d+$/s) {
         croak "PID must be a digits sequence";
     }
     
+    if ($pid > 65535) {
+        croak "PID value ($pid) is too big";
+    }
+
     return System::Process::Unit->new($pid);
 }
 
