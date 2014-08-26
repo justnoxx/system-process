@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 
 use File::Temp qw/ tempfile /;
 use Data::Dumper;
@@ -38,6 +38,31 @@ $pi = pidinfo file => $filename;
 
 is( $pi, undef, 'empty result for empty file' );
 
+#
+# Non digital pid must croak
+#
+$croak = undef;
+eval {
+    $pi = pidinfo(pid=>'abcd');
+    1;
+} or do {
+    $croak = 1;
+};
+
+ok $croak, 'pid with non-digits sequence';
+
+#
+# Too big pid must croak
+#
+$croak = undef;
+eval {
+    $pi = pidinfo(pid=> 100500 ** 4);
+    1;
+} or do {
+    $croak = 1;
+};
+
+ok $croak, 'too big pid';
 
 #
 # We want croak for empty params
