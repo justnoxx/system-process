@@ -133,7 +133,7 @@ our $TEST = 0;
 sub import {
     my ($class, $import) = @_;
 
-    if ($import =~ m/test/s) {
+    if ($import && $import =~ m/test/s) {
         $TEST = 1;
         $System::Process::Unit::TEST = 1;
     }
