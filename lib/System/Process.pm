@@ -125,6 +125,7 @@ use warnings;
 no warnings qw/once/;
 
 use Carp;
+use POSIX;
 
 our $VERSION = 0.15;
 our $ABSTRACT = "Simple OO wrapper over ps.";
@@ -186,7 +187,7 @@ sub pidinfo {
         croak "PID must be a digits sequence";
     }
     
-    if ($pid > 65535) {
+    if ($pid > POSIX::UINT_MAX) {
         croak "PID value ($pid) is too big";
     }
 
