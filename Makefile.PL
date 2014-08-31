@@ -64,8 +64,8 @@ if ($ExtUtils::MakeMaker::VERSION >= 6.46) {
         resources => {
             repository => {
                 type    => 'git',
-                url     => 'https://github.com/justnoxx/system-initd',
-                web     => 'https://github.com/justnoxx/system-initd.git',
+                url     => 'https://github.com/justnoxx/system-process',
+                web     => 'https://github.com/justnoxx/system-process.git',
             },
         },
     };
