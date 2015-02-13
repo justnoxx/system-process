@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 use File::Temp qw/ tempfile /;
 use Data::Dumper;
@@ -151,6 +151,10 @@ is $pi->command, 'some command line', 'check last (command line) cloumn';
 $pi = pidinfo pid => $pid;
 
 ok $pi->cankill, 'can not send signal to me';
+
+$pi->refresh();
+
+ok($pi, "refresh is ok");
 
 
 #
